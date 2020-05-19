@@ -28,14 +28,14 @@ def main():
     pop = []
     bestone = None
     bestscore = float("-inf")
-    maxSpan = 200
-    minSpan = -200
-    popAmount = 10
-    leap = 10
-    generations = 100
+    maxSpan = 20000
+    minSpan = -20000
+    popAmount = 1
+    leap = 1
+    generations = 1000000
 
     for obj in range(0,popAmount):
-        obj = [float(random.randint(minSpan,maxSpan)),float(random.randint(minSpan,maxSpan))]
+        obj = [float(random.uniform(minSpan,maxSpan)),float(random.uniform(minSpan,maxSpan))]
         pop.append(obj)
 
     for generation in range(0,generations):
