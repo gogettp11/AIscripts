@@ -1,10 +1,11 @@
 from numpy import random
 from sys import exit
 from numpy import dot
+import math
 
 #input and output may be matrixes or vectors
 def train(neuralNetwork, input, output, generations=10, population=10, bests = 4, crossing_prob=0.5,
-           mutation_prob=0.5, learning_rate=0.3):
+           mutation_prob=0.5, learning_rate=0.3,function="linear"):
     def mutate(obj):
         for x in range(len(neuralNetwork)):
             for y in range(len(neuralNetwork[x])):
@@ -41,7 +42,8 @@ def train(neuralNetwork, input, output, generations=10, population=10, bests = 4
         for obj in pop:
             individual = 0
             for outputx, inputx in zip(output, input):
-                individual += (outputx - predict(obj, inputx)) ** 2
+                individual += (outputx - predict(obj, inputx,function)) ** 2
+            individual=math.sqrt(individual)
             for x in range(bests):
                 if bestscores[x] > individual:
                     bestscores[x] = individual
@@ -51,28 +53,32 @@ def train(neuralNetwork, input, output, generations=10, population=10, bests = 4
     best_nn = bestones[bests-1]
     print("after:" + best_nn.__str__())
     return best_nn
-
-def linear(x, a=2):
-    return [i * a for i in x]
-def predict(neuralNetwork, input):
+def predict(neuralNetwork, input,function="linear"):
     for i in range(len(neuralNetwork)):
-        input = dot(neuralNetwork[i], linear(input))
+        input = dot(neuralNetwork[i], Functions.__dict__[function](input))
         input.transpose()
     return input
 def initialize(neurons = [2,4,1]):
     nn = ([[[random.uniform(-2, 2) for x in range(neurons[i])]
             for j in range(neurons[i + 1])] for i in range(len(neurons)-1)])
     return nn
+class Functions():
+    def linear(x, a=1):
+        return [i * a for i in x]
+    def sigmoid(x):
+        return [1 / (1 + math.exp(-x)) for x in x]
 
 nnx = initialize()
 nny = initialize()
 print(nnx)
 print(nny)
-print(predict(nnx, [5, 3]))
-print(predict(nny, [5, 3]))
-nnx = train(neuralNetwork=nnx, input=[[1,2],[2,3],[4,3],[3,2]], output=[3,5,7,5], learning_rate=1, population=100,generations=100,bests=15)
-nny = train(nny, [[1,2],[2,3],[4,3],[3,2]], [3,5,7,5], learning_rate=0.5, population=20,generations=100,bests=7, crossing_prob=0.2)
-print(predict(nnx, [5, 3]))
-print(predict(nny, [5, 3]))
+print(predict(nnx, [2, 3]))
+print(predict(nny, [2, 3]))
+nnx = train(neuralNetwork=nnx, input=[[1,2],[2,3],[4,3],[3,2]], output=[3,5,7,5],
+            learning_rate=1, population=80,generations=100,bests=25,function="sigmoid")
+nny = train(nny, [[1,2],[2,3],[4,3],[3,2]], [3,5,7,5], learning_rate=0.1, population=150,
+            generations=100,bests=50, crossing_prob=0.3, mutation_prob=0.9)
+print(predict(nnx, [2, 3]))
+print(predict(nny, [2, 3]))
 
 exit()
